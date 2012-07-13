@@ -1,0 +1,6 @@
+[submodule "ajax-upload"]
+	path = ajax-upload
+	url = https://github.com/elucid/ajax-upload.git
+[submodule "image-mod"]
+	path = image-mod
+	url = https://github.com/Gregwar/Image.git
