@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <title>Jcrop &raquo; Tutorials &raquo; Event Handler</title>
+    <script src="../js/jquery.min.js" type="text/javascript"></script>
+    <script src="../js/jquery.Jcrop.js" type="text/javascript"></script>
+    <!--[if lt IE 10]>
+    <script src="https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+    <script src="FileReader/jquery.FileReader.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="../css/jquery.Jcrop.css" type="text/css" />
+    <link rel="stylesheet" href="demo_files/demos.css" type="text/css" />
+    <link rel="stylesheet" href="../css/htc.crop.css" type="text/css" />
+    <script type="text/javascript">
+
+    var ctx;
+    jQuery(function($){
+      ctx = $('#previewCanvas')[0].getContext('2d');
+
+    });
+
+    // Simple event handler, called from onChange and onSelect
+    // event handlers, as per the Jcrop invocation above
+    function showCoords(c)
+    {
+      $('#x1').val(c.x);
+      $('#y1').val(c.y);
+      $('#x2').val(c.x2);
+      $('#y2').val(c.y2);
+      $('#w').val(c.w);
+      $('#h').val(c.h);
+
+
+    };
+
+    function drawImage(c){
+      var canvas = $('#previewCanvas')[0];
+      ctx.clearRect(0,0, canvas.width, canvas.height);
+      canvas.width = c.w;
+      canvas.height = c.h;
+      var ratio = $('#target').prop('naturalWidth')/$('#target').prop('width')
+      var sX = c.x*ratio;
+      var sY = c.y*ratio;
+      var sW = c.w*ratio;
+      var sH = c.h*ratio;
+
+      ctx.drawImage($('#target')[0], sX, sY, sW, sH, 0, 0, c.w, c.h);
+    }
+
+    function clearCoords()
+    {
+      $('#coords input').val('');
+    };
+
+    var jcrop_api;
+    function read(evt){
+
+      if(jcrop_api){
+        jcrop_api.destroy();
+        $('#target').removeAttr('src').removeAttr('style');
+      }
+
+      var files = evt.target.files;
+
+      if(typeof FileReader !== 'undefined'){
+
+        var file = files[0];
+        var fileName = file.fileName;
+        var fileSize = file.fileSize;
+
+        var reader = new FileReader();
+        reader.onload = function() {
+          $('#target').attr('src', reader.result);
+          $('#target').Jcrop({
+            onChange:   showCoords,
+            onSelect: drawImage,
+            onRelease:  clearCoords,
+            aspectRatio: 426 / 265
+          }, function(){
+            jcrop_api = this;
+          });
+
+        };
+        reader.readAsDataURL(file);
+
+      }else{
+        //IE
+        alert('not support realtime preview');
+
+      }
+    }
+
+    function crop(){
+      if(!jcrop_api)
+        return;
+
+
+    }
+
+
+    $(window).load(function(){
+      if($.browser.msie && $.browser.version <= 9){
+        console.log('IE 9', 'load flash solution...')
+        $('#filesInput').fileReader({
+          id: 'fileReaderSWFObject',
+          filereader: 'FileReader/filereader.swf',
+          debugMode: true,
+          callback: function(){
+
+          }
+
+        });
+      }
+      $('#filesInput').on('change', read);
+    });
+    </script>
+  </head>
+  <body>
+  <div id="outer">
+  <div class="jcExample">
+  <div class="article">
+
+    <h1>Jcrop - for HTC crop Homescreen</h1>
+    <input id="filesInput" type="file" >
+
+    <!-- This is the image we're attaching Jcrop to -->
+    <img src="" id="target" alt="Flowers" width="700"/>
+
+    <!-- This is the form that our event handler fills -->
+    <form id="coords"
+      class="coords"
+      onsubmit="return false;"
+      action="http://example.com/post.php">
+
+      <div>
+      <label>X1 <input type="text" size="4" id="x1" name="x1" /></label>
+      <label>Y1 <input type="text" size="4" id="y1" name="y1" /></label>
+      <label>X2 <input type="text" size="4" id="x2" name="x2" /></label>
+      <label>Y2 <input type="text" size="4" id="y2" name="y2" /></label>
+      <label>W <input type="text" size="4" id="w" name="w" /></label>
+      <label>H <input type="text" size="4" id="h" name="h" /></label>
+      </div>
+      <canvas id="previewCanvas"></canvas>
+    </form>
+    <button id="crop" onclick="crop()">crop</button>
+    <div id="dl_links">
+      <a href="http://deepliquid.com/content/Jcrop.html">Jcrop Home</a> |
+      <a href="http://deepliquid.com/content/Jcrop_Manual.html">Manual (Docs)</a>
+    </div>
+
+
+  </div>
+  </div>
+  </div>
+  </body>
+
+</html>
